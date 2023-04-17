@@ -19,7 +19,11 @@
 #include <time.h>
 #include <string.h>
 
-#include <valgrind/callgrind.h>
+//#include <valgrind/callgrind.h>
+
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
 
 Display* dpy;
 int screen;
@@ -185,7 +189,7 @@ void *GirlThread() {
 					//XSetTransientForHint(dpy,win,active);
 					if (x != oldx || y != oldy || firstrun) {
 						printf("Moved\n");
-						XMoveWindow(dpy, win, x+active_xwa.width-128, y-height_offset);
+						XMoveWindow(dpy, win, MAX(x+active_xwa.width-128,x), y-height_offset);
 						firstrun = false;
 						XFlush(dpy);
 					}
@@ -282,8 +286,6 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	CALLGRIND_START_INSTRUMENTATION;
-	CALLGRIND_TOGGLE_COLLECT;
 	XInitThreads();
 	XSetErrorHandler(handler);
     if ((dpy = XOpenDisplay(getenv("DISPLAY"))) == 0)
@@ -360,7 +362,5 @@ int main(int argc, char** argv) {
 	pthread_join(girl_thread, NULL);
 
 	printf("Bye\n");
-	CALLGRIND_TOGGLE_COLLECT;
-	CALLGRIND_STOP_INSTRUMENTATION;
 	return(0);
 }
